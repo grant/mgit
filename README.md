@@ -1,5 +1,7 @@
 # mgit
 
+> Warning: This tool is currently being developed!
+
 A tool for managing multiple git repositories
 
 ```
