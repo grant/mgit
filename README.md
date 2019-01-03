@@ -66,3 +66,7 @@ echo 'MGIT_TOKEN=<token>' > .env
 sudo npm run build
 mgit
 ```
+
+## Prior Art
+
+- https://github.com/octokit/rest.js
