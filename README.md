@@ -56,8 +56,8 @@ URL: https://stackoverflow.com/questions/3258243/check-if-pull-needed-in-git
 ### Setup Auth
 
 Create a GitHub App. Example:
-https://github.com/settings/applications/960504
-https://github.com/settings/tokens
+- https://github.com/settings/applications/960504
+- https://github.com/settings/tokens
 
 ## Install the CLI
 
