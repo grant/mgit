@@ -48,3 +48,10 @@ URL: https://stackoverflow.com/questions/3258243/check-if-pull-needed-in-git
 
 - List all pending GitHub PRs
 - List all pending GitHub Issues
+
+## Develop
+
+```
+sudo npm run build
+mgit
+```
