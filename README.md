@@ -12,9 +12,9 @@ npm i @grant/mgit
 
 ```sh
 mgit list [user|org]
-mgit i [user|org]
-mgit pull
-mgit push
+mgit clone [user|org]
+mgit pull [user|org]
+mgit push [user|org]
 mgit status
 ```
 
@@ -28,19 +28,29 @@ mgit list grant
 mgit list google
 ```
 
-### Install all repos by a user/organization
+### Clones all repos by a user/organization
+
+Clones all repositories located at github.com/<name> where name is a user or org.
 
 ```sh
 mgit clone grant
-```
-
-Clones all repositories located at github.com/grant.
-
-```sh
+...
 Cloning 120 repositories...
 grant/a
 grant/b
 grant/c
+```
+
+### Pull
+
+```sh
+mgit pull
+```
+
+### Push
+
+```sh
+mgit push
 ```
 
 ### Check status of repos
