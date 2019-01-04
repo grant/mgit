@@ -2,22 +2,18 @@
 
 import * as commander from 'commander';
 
-import { auth, getRepos, test } from './github/api';
-
 import { clone } from './commands/clone';
 import { list } from './commands/list';
 import { pull } from './commands/pull';
 import { push } from './commands/push';
 import { status } from './commands/status';
 
-// List all repos by grant.
-const BASE_URL = 'https://api.github.com';
+const PROJECT_NAME = 'mgit';
+const PROJECT_DESCRIPTION = `${PROJECT_NAME} - A tool for managing multiple git repositories`;
 
 // Load env variables
 require('dotenv').load();
 
-const PROJECT_NAME = 'mgit';
-const PROJECT_DESCRIPTION = `${PROJECT_NAME} - A tool for managing multiple git repositories`;
 /**
  * Set global CLI configurations
  */

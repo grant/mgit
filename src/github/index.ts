@@ -1,11 +1,3 @@
-
-// OAuth
-// octokit.authenticate({
-//   type: 'oauth',
-//   key: MGIT_GITHUB_KEY,
-//   secret: MGIT_GITHUB_SECRET,
-// })
-
 // const res = await octokit.repos.listForOrg({
 //   org: 'google',
 //   type: 'public',
