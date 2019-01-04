@@ -1,5 +1,45 @@
-import {loadAPICredentials} from '../github/auth';
-export async function list() {
-  console.log('Listing repos...');
+import {Response} from '@octokit/rest';
+import { loadAPICredentials } from '../github/auth';
+import { octokit } from '../github/auth';
+
+// Page page size with GitHub API
+const MAX_PAGE_SIZE = 100;
+
+/**
+ * Lists the user/repo names.
+ * @param {string} username The GitHub username or org name.
+ */
+export async function list(username: string) {
+  console.log(`Listing repos for ${username}...`);
   await loadAPICredentials();
+
+  // Setup
+  let allData: any[] = [];
+  let page = 1;
+  let listIsEmpty = false;
+
+  // Gets a list of repos as a specific page.
+  const getList: (page: number) => Promise<Response<any>> = async (page: number) => {
+    return await octokit.repos.listForUser({
+      username,
+      per_page: MAX_PAGE_SIZE,
+      page,
+    });
+  };
+
+  // Get full list until empty.
+  while (!listIsEmpty) {
+    const list = await getList(page);
+    allData = allData.concat(list.data);
+    if (list.data.length < MAX_PAGE_SIZE) {
+      listIsEmpty = true;
+    } else {
+      ++page;
+    }
+  }
+
+  // List all names.
+  for (const datum of allData) {
+    console.log(datum.full_name);
+  }
 }
