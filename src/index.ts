@@ -1,10 +1,8 @@
 #!/usr/bin/env node
 
-import * as Octokit from '@octokit/rest';
+import {auth, getRepos} from './api';
 
 import axios from 'axios';
-
-const octokit = new Octokit();
 
 // List all repos by grant.
 const BASE_URL = 'https://api.github.com';
@@ -13,12 +11,7 @@ const BASE_URL = 'https://api.github.com';
 require('dotenv').load();
 
 async function start() {
-  // https://github.com/settings/applications/960504
-  // Personal Access Token
-  const MGIT_TOKEN = process.env.MGIT_TOKEN;
-  if (!MGIT_TOKEN) {
-    return console.log(`MGIT_TOKEN env variable must be provided. See README.`);
-  }
+  await auth();
 
   // OAuth
   // octokit.authenticate({
@@ -26,11 +19,6 @@ async function start() {
   //   key: MGIT_GITHUB_KEY,
   //   secret: MGIT_GITHUB_SECRET,
   // })
-
-  octokit.authenticate({
-    type: 'oauth',
-    token: MGIT_TOKEN,
-  });
 
   // const res = await octokit.repos.listForOrg({
   //   org: 'google',
@@ -52,13 +40,8 @@ async function start() {
   // });
   // console.log(orgs.data);
 
-  const repos = await octokit.repos.listForUser({
-    username: 'grant',
-    per_page: 100,
-  });
-  repos.data.map((repo: any) => {
-    console.log(repo.full_name);
-  });
+  await getRepos('grant');
+
   // const ff = await octokit.users.getByUsername({
   //   username: 'grant',
   // });
