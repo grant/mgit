@@ -13,6 +13,8 @@ npm i @grant/mgit
 ```sh
 mgit list [user|org]
 mgit i [user|org]
+mgit pull
+mgit push
 mgit status
 ```
 

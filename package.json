@@ -29,7 +29,8 @@
   },
   "homepage": "https://github.com/grant/mgit#readme",
   "devDependencies": {
-    "@types/node": "^10.12.18"
+    "@types/node": "^10.12.18",
+    "commander": "^2.19.0"
   },
   "dependencies": {
     "@octokit/rest": "^16.3.1",
