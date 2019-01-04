@@ -11,12 +11,22 @@ npm i @grant/mgit
 ## Commands
 
 ```sh
-mgit i <user>
-mgit i <org>
+mgit list [user|org]
+mgit i [user|org]
 mgit status
 ```
 
-## Install all repos by a user/organization
+### List
+
+Lists all repos for a user/org.
+
+```sh
+mgit list
+mgit list grant
+mgit list google
+```
+
+### Install all repos by a user/organization
 
 ```sh
 mgit clone grant
@@ -31,7 +41,7 @@ grant/b
 grant/c
 ```
 
-## Check status of repos
+### Check status of repos
 
 ```sh
 mgit status

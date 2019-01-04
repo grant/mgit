@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-import {auth, getRepos} from './api';
+import {auth, getRepos, test} from './api';
 
 import axios from 'axios';
 
@@ -40,7 +40,13 @@ async function start() {
   // });
   // console.log(orgs.data);
 
-  await getRepos('grant');
+  // const repos = await getRepos('grant');
+  // const repos = await getRepos('foo');
+  const repos = await test();
+
+  // repos.map((repo: any) => {
+  //   console.log(repo.full_name);
+  // });
 
   // const ff = await octokit.users.getByUsername({
   //   username: 'grant',
@@ -60,7 +66,4 @@ async function start() {
   // const repo = await octokit.repos.get({ owner: 'octokit', repo: 'rest.js' })
 }
 
-// const octokit = require('@octokit/rest')()
-
-console.log('mgit works!');
 start();
