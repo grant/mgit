@@ -55,7 +55,7 @@ URL: https://stackoverflow.com/questions/3258243/check-if-pull-needed-in-git
 
 ### Setup Auth
 
-Create a GitHub App. Example:
+Create a **personal access token**. Example:
 - https://github.com/settings/applications/960504
 - https://github.com/settings/tokens
 
@@ -69,4 +69,5 @@ mgit
 
 ## Prior Art
 
+- https://hub.github.com/
 - https://github.com/octokit/rest.js
