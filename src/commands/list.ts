@@ -11,7 +11,8 @@ const MAX_PAGE_SIZE = 100;
  * @param {string} username The GitHub username or org name.
  */
 export async function list(username: string) {
-  if (!username) {
+  if (typeof username !== 'string') {
+    // TODO: Support mgit list
     return console.log('Username is required!');
   }
   await loadAPICredentials();
