@@ -89,7 +89,12 @@ sudo npm run build
 mgit
 ```
 
-## Prior Art
+## Technology
 
+- CLI: https://github.com/tj/commander.js
+- Git Commands: https://github.com/steveukx/git-js
+- GitHub API: https://github.com/octokit/rest.js
+
+Also see:
 - https://hub.github.com/
-- https://github.com/octokit/rest.js
+- https://github.com/steveukx/git-js

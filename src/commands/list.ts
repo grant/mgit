@@ -15,7 +15,6 @@ export async function list(username: string) {
   const data = await apilist(username);
 
   // List all names.
-  spinner.stop(true);
   for (const datum of data) {
     console.log(datum.full_name);
   }
