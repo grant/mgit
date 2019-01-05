@@ -97,4 +97,3 @@ mgit
 
 Also see:
 - https://hub.github.com/
-- https://github.com/steveukx/git-js

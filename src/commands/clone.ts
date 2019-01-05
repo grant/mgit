@@ -15,11 +15,14 @@ export async function clone(username: string) {
   }
   await loadAPICredentials();
   const data = await apilist(username);
+  console.log(`Cloning ${data.length} repos...`);
 
   // List all names.
   spinner.setSpinnerTitle('Cloning repos');
   for (const datum of data) {
     const gitURL = `git@github.com:${datum.full_name}.git`;
+    // TODO Clone in folder.
+    // TODO Skip already cloned directories.
     simpleGit.clone(gitURL, () => {
       console.log(`Cloned: ${gitURL}`);
     });
