@@ -1,4 +1,4 @@
-import {Response} from '@octokit/rest';
+import { Response } from '@octokit/rest';
 import { octokit } from '../github/auth';
 import { spinner } from './../utils';
 

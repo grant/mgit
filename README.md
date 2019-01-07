@@ -95,5 +95,7 @@ mgit
 - Git Commands: https://github.com/steveukx/git-js
 - GitHub API: https://github.com/octokit/rest.js
 
-Also see:
+Prior art:
+
 - https://hub.github.com/
+- https://medium.com/@kevinsimper/how-to-clone-all-repositories-in-a-github-organization-8ccc6c4bd9df

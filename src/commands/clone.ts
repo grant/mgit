@@ -1,8 +1,10 @@
+import * as simplegit from 'simple-git/promise';
+
 import { apilist } from '../api/list';
 import { loadAPICredentials } from '../github/auth';
 import { spinner } from './../utils';
 
-const simpleGit = require('simple-git')(process.env.PWD);
+const git = simplegit(process.env.PWD);
 
 /**
  * Clones all user/org repos.
@@ -23,8 +25,7 @@ export async function clone(username: string) {
     const gitURL = `git@github.com:${datum.full_name}.git`;
     // TODO Clone in folder.
     // TODO Skip already cloned directories.
-    simpleGit.clone(gitURL, () => {
-      console.log(`Cloned: ${gitURL}`);
-    });
+    await git.clone(gitURL, '.');
+    console.log(`Cloned: ${gitURL}`);
   }
 }
