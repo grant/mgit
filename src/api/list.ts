@@ -29,6 +29,7 @@ export async function apilist(username: string): Promise<any> {
   };
 
   // Get full list until empty.
+  spinner.start();
   while (!listIsEmpty) {
     const list = await getList(page);
     allData = allData.concat(list.data);
