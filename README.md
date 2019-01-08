@@ -15,6 +15,7 @@ mgit list [user|org]
 mgit clone [user|org]
 mgit pull [user|org]
 mgit push [user|org]
+mgit clean
 mgit status
 ```
 
@@ -51,6 +52,14 @@ mgit pull
 
 ```sh
 mgit push
+```
+
+### Clean
+
+Removes all local repos that aren't found on GitHub.
+
+```sh
+mgit clean
 ```
 
 ### Check status of repos

@@ -15,13 +15,11 @@ export async function clone(username: string) {
   }
   await loadAPICredentials();
   const data = await apilist(username);
-  console.log(`Cloning ${data.length} repos...`);
 
-  // List all names.
-  spinner.setSpinnerTitle('Cloning repos');
+  // Clone all repos
+  console.log(`Cloning ${data.length} repos...`);
   for (const datum of data) {
     const gitURL = getGitURL(datum.full_name);
-    // TODO Skip already cloned directories.
     await gitClone(gitURL, datum.name);
   }
 }
