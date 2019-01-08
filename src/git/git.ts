@@ -14,7 +14,7 @@ const git = simplegit(process.env.PWD);
  * @param {string} gitURL The GitHub URL.
  * @param {string} path The clone path.
  */
-export async function clone(gitURL: string, path = '.') {
+export async function clone(gitURL: string, path: string) {
   const exists = await fs.exists(path);
   if (!exists) {
     spinner.setSpinnerTitle(`Cloning ${gitURL}...`).start();
@@ -22,7 +22,7 @@ export async function clone(gitURL: string, path = '.') {
     spinner.stop(true);
     console.log(chalk.green(`New: ${gitURL}`));
   } else {
-    console.log(`Old: ${gitURL}`);
+    console.log(chalk.yellow(`Old: ${gitURL}`));
   }
 }
 

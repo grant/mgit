@@ -1,4 +1,5 @@
 import { apilist } from '../api/list';
+import { getGitURL } from '../utils';
 import { pull as gitPull } from '../git/git';
 import { loadAPICredentials } from '../github/auth';
 
@@ -15,8 +16,7 @@ export async function pull(username: string) {
   const data = await apilist(username);
   for (const datum of data) {
     console.log(datum.full_name);
-    // git config --get remote.origin.url
-
-    // gitPull(path);
+    const gitURL = getGitURL(datum.full_name);
+    gitPull(gitURL);
   }
 }

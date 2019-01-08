@@ -1,7 +1,8 @@
+import { getGitURL, spinner } from './../utils';
+
 import { apilist } from '../api/list';
 import { clone as gitClone } from '../git/git';
 import { loadAPICredentials } from '../github/auth';
-import { spinner } from './../utils';
 
 /**
  * Clones all user/org repos.
@@ -19,8 +20,8 @@ export async function clone(username: string) {
   // List all names.
   spinner.setSpinnerTitle('Cloning repos');
   for (const datum of data) {
-    const gitURL = `git@github.com:${datum.full_name}.git`;
+    const gitURL = getGitURL(datum.full_name);
     // TODO Skip already cloned directories.
-    await gitClone(gitURL, datum.full_name);
+    await gitClone(gitURL, datum.name);
   }
 }
