@@ -62,12 +62,6 @@ O grant/b
 X grant/c
 ```
 
-## Notes
-
-Num commits between HEAD and master:
-`git rev-list HEAD...origin/master --count`
-URL: https://stackoverflow.com/questions/3258243/check-if-pull-needed-in-git
-
 ## Ideas
 
 - List all pending GitHub PRs
