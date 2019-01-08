@@ -42,7 +42,7 @@ export async function apilist(username: string): Promise<any> {
   // Gets a list of repos as a specific page.
   const getList: (page: number) => Promise<Response<any>> = async (page: number) => {
     const rangeStart = (page - 1) * MAX_PAGE_SIZE;
-    const rangeEnd = Math.max(page * MAX_PAGE_SIZE, totalRepos);
+    const rangeEnd = Math.min(page * MAX_PAGE_SIZE, totalRepos);
     const rangeString = `Getting repos ${rangeStart}-${rangeEnd}/${totalRepos}...`;
     spinner.setSpinnerTitle(rangeString);
     return await octokit.repos.listForUser({
