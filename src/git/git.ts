@@ -20,5 +20,9 @@ export async function clone(gitURL: string, path = '.') {
 export async function status(path: string) {
   const repoPath = join(path);
   const git = simplegit(repoPath);
+
+  // We need to update the local version of our git repo.
+  // git remote update && git status
+  await git.remote(['update']);
   return git.status();
 }
