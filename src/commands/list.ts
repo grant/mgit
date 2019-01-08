@@ -1,6 +1,5 @@
 import { apilist } from '../api/list';
 import { loadAPICredentials } from '../github/auth';
-import { spinner } from './../utils';
 
 /**
  * Lists the user/repo names.
