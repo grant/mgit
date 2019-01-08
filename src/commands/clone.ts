@@ -20,9 +20,7 @@ export async function clone(username: string) {
   spinner.setSpinnerTitle('Cloning repos');
   for (const datum of data) {
     const gitURL = `git@github.com:${datum.full_name}.git`;
-    // TODO Clone in folder.
     // TODO Skip already cloned directories.
-    await gitClone(gitURL, '.');
-    console.log(`Cloned: ${gitURL}`);
+    await gitClone(gitURL, datum.full_name);
   }
 }

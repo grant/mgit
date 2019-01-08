@@ -32,3 +32,15 @@ export const getNumRepos = async (username: string) => {
   }
   return -1; // Should never happen.
 };
+
+/**
+ * Gets a list of users
+ */
+export const getUsers = async () => {
+  const users = await octokit.users.list({
+
+  });
+  users.data.map((user) => {
+    console.log(user.url);
+  });
+};
