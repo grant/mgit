@@ -6,8 +6,8 @@ import { join } from 'path';
 import { spinner } from './../utils';
 
 const fs = require('fs-extra');
-
 const git = simplegit(process.env.PWD);
+const isGit = require('is-git-repository');
 
 /**
  * Clones the repo using git.
@@ -32,6 +32,10 @@ export async function clone(gitURL: string, path: string) {
  */
 export async function status(path: string) {
   const repoPath = join(path);
+  if (!isGit(repoPath)) {
+    console.warn(chalk.yellow(`WARNING: Non-git repo detected: ${repoPath}`));
+    return false;
+  }
   const git = simplegit(repoPath);
 
   // We need to update the local version of our git repo.

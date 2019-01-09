@@ -11,6 +11,7 @@ export async function status() {
   const folders = await getFoldersInDir();
   folders.map(async (folder: string) => {
     const status = await gitStatus(folder);
+    if (!status) return;
 
     // Color text
     const hasBehind = !!status.behind;
@@ -48,6 +49,6 @@ const getFoldersInDir: () => Promise<string[]> = async (folder = process.env.PWD
   const folderStats = fileAndFolderStats.filter((folderStat) => {
     return !folderStat.isFile;
   });
-  const folderNames = folderStats.map((fileStat) => fileStat.path);
+  const folderNames = folderStats.map((fileStat) => fileStat.path).sort();
   return folderNames;
 };

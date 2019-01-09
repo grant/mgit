@@ -40,6 +40,7 @@
     "cli-spinner": "^0.2.8",
     "dotenv": "^6.2.0",
     "fs-extra": "^7.0.1",
+    "is-git-repository": "^1.1.1",
     "simple-git": "^1.107.0"
   }
 }
