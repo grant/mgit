@@ -1,104 +1,64 @@
 # mgit
 
-> Warning: This tool is currently being developed!
+Clone all repos for a GitHub user or organization.
 
-A tool for managing multiple git repositories
-
-```
-npm i @grant/mgit
+```sh
+npm i -g @grant/mgit
 ```
 
 ## Commands
 
 ```sh
-mgit list [user|org]
-mgit clone [user|org]
-mgit pull [user|org]
-mgit push [user|org]
-mgit clean
-mgit status
+mgit clone [owner]   # Clone all repos (default: authenticated user from MGIT_TOKEN)
+mgit status          # List repos cloned for this user/org
 ```
 
-### List
+### clone
 
-Lists all repos for a user/org.
+Clones every repository at `github.com/<owner>` (user or org) into the current directory. If you omit `owner`, it uses the GitHub user for your `MGIT_TOKEN`.
 
 ```sh
-mgit list
-mgit list grant
-mgit list google
+mgit clone           # clone all repos for the authenticated user
+mgit clone google    # clone all of google's repos
 ```
 
-### Clones all repos by a user/organization
+After cloning, mgit writes a `.mgit.json` file in the current directory with the owner and list of repo names so `mgit status` knows what you have.
 
-Clones all repositories located at github.com/<name> where name is a user or org.
+### status
 
-```sh
-mgit clone grant
-...
-Cloning 120 repositories...
-grant/a
-grant/b
-grant/c
-```
-
-### Pull
-
-```sh
-mgit pull
-```
-
-### Push
-
-```sh
-mgit push
-```
-
-### Clean
-
-Removes all local repos that aren't found on GitHub.
-
-```sh
-mgit clean
-```
-
-### Check status of repos
+Prints the owner and list of repos that were cloned in this directory (from `.mgit.json`).
 
 ```sh
 mgit status
-X grant/a
-O grant/b
-X grant/c
+# grant (42 repos)
+#   grant/mgit
+#   grant/other-repo
+#   ...
 ```
 
-## Ideas
+## Setup
 
-- List all pending GitHub PRs
-- List all pending GitHub Issues
+Create a [GitHub personal access token](https://github.com/settings/tokens) with `repo` scope, then:
+
+```sh
+export MGIT_TOKEN=<your-token>
+# or
+echo 'MGIT_TOKEN=<your-token>' > .env
+```
 
 ## Develop
 
-### Setup Auth
-
-Create a **personal access token**. Example:
-- https://github.com/settings/applications/960504
-- https://github.com/settings/tokens
-
-## Install the CLI
-
-```
+```sh
+npm install
 echo 'MGIT_TOKEN=<token>' > .env
-sudo npm run build
-mgit
+npm run build
+mgit clone
 ```
 
-## Technology
+**Watch mode (rebuild on save):** Run `npm run dev` in one terminal; it recompiles whenever you change `.ts` files. Use `mgit` in another terminal to test—each run uses the latest build.
 
-- CLI: https://github.com/tj/commander.js
-- Git Commands: https://github.com/steveukx/git-js
-- GitHub API: https://github.com/octokit/rest.js
+## Tech
 
-Prior art:
-
-- https://hub.github.com/
-- https://medium.com/@kevinsimper/how-to-clone-all-repositories-in-a-github-organization-8ccc6c4bd9df
+- CLI: [commander](https://github.com/tj/commander.js)
+- Git: [simple-git](https://github.com/steveukx/git-js)
+- GitHub API: [@octokit/rest](https://github.com/octokit/rest.js)

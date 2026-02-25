@@ -1,52 +1,37 @@
 #!/usr/bin/env node
 
-import * as commander from 'commander';
+import { createRequire } from "node:module";
+import { Command } from "commander";
+import { clone } from "./commands/clone.js";
+import { status } from "./commands/status.js";
+import "dotenv/config";
 
-import { clone } from './commands/clone';
-import { list } from './commands/list';
-import { pull } from './commands/pull';
-import { push } from './commands/push';
-import { status } from './commands/status';
+const require = createRequire(import.meta.url);
+const pkg = require("../package.json");
 
-const PROJECT_NAME = 'mgit';
-const PROJECT_DESCRIPTION = `${PROJECT_NAME} - A tool for managing multiple git repositories`;
+const program = new Command();
 
-// Load env variables
-require('dotenv').load();
+program
+  .name("mgit")
+  .description("Clone all repos for a GitHub user or organization")
+  .version(pkg.version);
 
-/**
- * Set global CLI configurations
- */
-commander.name(PROJECT_NAME).usage(`<command> [options]`).description(PROJECT_DESCRIPTION);
+program
+  .command("clone [owner]")
+  .description(
+    "Clone all repos for a user/org (default: authenticated user from MGIT_TOKEN)",
+  )
+  .action((owner: string) => clone(owner));
 
-// Commands
-commander.command('list').description('Lists all repos').action(list);
-commander.command('clone').description('Clones all repos').action(clone);
-commander.command('pull').description('Pulls all repos').action(pull);
-commander.command('push').description('Pushes all repos').action(push);
-commander.command('status').description('Lists the status of all repos').action(status);
+program
+  .command("status")
+  .description("List repos cloned for the current user/org")
+  .action(status);
 
-/**
- * All other commands are given a help message.
- * @example random
- */
-commander
-  .command('*', undefined, { isDefault: true })
-  .description('Any other command is not supported')
-  .action((args) => {
-    console.log('Command not supported.');
-  });
+program.showHelpAfterError();
 
-/**
- * Displays version
- */
-commander.option('-v, --version').on('option:version', () => {
-  console.log(require('../package.json').version);
-});
-
-// defaults to help if commands are not provided
 if (!process.argv.slice(2).length) {
-  commander.outputHelp();
+  program.outputHelp();
+} else {
+  program.parse(process.argv);
 }
-// User input is provided from the process' arguments
-commander.parse(process.argv);

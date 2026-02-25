@@ -1,6 +1,5 @@
-import { Response } from '@octokit/rest';
-import { octokit } from '../github/auth';
-import { spinner } from './../utils';
+import { getOctokit } from '../github/auth.js';
+import { spinner } from '../utils.js';
 
 /**
  * The GitHub account type.
@@ -16,23 +15,22 @@ export enum AccountType {
  * @param {string} name The GitHub account name.
  */
 export async function getAccountType(name: string): Promise<AccountType> {
+  const octokit = getOctokit();
   try {
-    await octokit.users.getByUsername({
+    await octokit.rest.users.getByUsername({
       username: name,
     });
     return AccountType.USER;
-  } catch(e) {
-    // TODO remove
-    console.log(e);
+  } catch {
+    // not a user
   }
   try {
-    await octokit.orgs.get({
+    await octokit.rest.orgs.get({
       org: name,
     });
     return AccountType.ORG;
-  } catch(e) {
-    // TODO remove
-    console.log(e);
+  } catch {
+    // not an org
   }
   return AccountType.UNDEFINED;
 }

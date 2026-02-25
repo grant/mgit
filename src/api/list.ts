@@ -1,37 +1,45 @@
-import { Response } from '@octokit/rest';
-import { getNumRepos } from './user';
-import { octokit } from '../github/auth';
-import { spinner } from './../utils';
+import { AccountType, getAccountType } from './utils.js';
+import { getNumRepos } from './user.js';
+import { getOctokit } from '../github/auth.js';
+import { spinner } from '../utils.js';
 
-// Page page size with GitHub API
 const MAX_PAGE_SIZE = 100;
 
-/**
- * Lists the user/repo names.
- * @param {string} username The GitHub username or org name.
- */
-export async function apilist(username: string): Promise<any> {
-  // Setup
-  let allData: any[] = [];
+export interface RepoInfo {
+  full_name: string;
+  name: string;
+}
+
+export async function apilist(owner: string): Promise<RepoInfo[]> {
+  const accountType = await getAccountType(owner);
+  if (accountType === AccountType.UNDEFINED) {
+    throw new Error(`Unknown user or org: ${owner}`);
+  }
+
+  let allData: RepoInfo[] = [];
   let page = 1;
   let listIsEmpty = false;
+  const totalRepos = await getNumRepos(owner);
 
-  const totalRepos = await getNumRepos(username);
-
-  // Gets a list of repos as a specific page.
-  const getList: (page: number) => Promise<Response<any>> = async (page: number) => {
-    const rangeStart = (page - 1) * MAX_PAGE_SIZE;
-    const rangeEnd = Math.min(page * MAX_PAGE_SIZE, totalRepos);
-    const rangeString = `Getting repos ${rangeStart}-${rangeEnd}/${totalRepos}...`;
-    spinner.setSpinnerTitle(rangeString);
-    return await octokit.repos.listForUser({
-      username,
+  const octokit = getOctokit();
+  const getList = async (p: number) => {
+    const rangeStart = (p - 1) * MAX_PAGE_SIZE;
+    const rangeEnd = Math.min(p * MAX_PAGE_SIZE, totalRepos);
+    spinner.setSpinnerTitle(`Getting repos ${rangeStart}-${rangeEnd}/${totalRepos}...`);
+    if (accountType === AccountType.ORG) {
+      return await octokit.rest.repos.listForOrg({
+        org: owner,
+        per_page: MAX_PAGE_SIZE,
+        page: p,
+      });
+    }
+    return await octokit.rest.repos.listForUser({
+      username: owner,
       per_page: MAX_PAGE_SIZE,
-      page,
+      page: p,
     });
   };
 
-  // Get full list until empty.
   spinner.start();
   while (!listIsEmpty) {
     const list = await getList(page);
@@ -39,11 +47,9 @@ export async function apilist(username: string): Promise<any> {
     if (list.data.length < MAX_PAGE_SIZE) {
       listIsEmpty = true;
     } else {
-      ++page;
+      page++;
     }
   }
-
-  // List all names.
   spinner.stop(true);
   return allData;
 }

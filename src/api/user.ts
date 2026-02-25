@@ -1,46 +1,22 @@
-import { AccountType, getAccountType } from './utils';
+import { AccountType, getAccountType } from './utils.js';
+import { getOctokit } from '../github/auth.js';
 
-import { Response } from '@octokit/rest';
-import { octokit } from '../github/auth';
-
-/**
- * Gets data for a user/org
- * @param {string} username The GitHub username or org name.
- */
-export async function get(username: string): Promise<Response<any>> {
-  return await octokit.orgs.get({
-    org: username,
-  });
+/** Returns the authenticated user's login (requires MGIT_TOKEN to be set and loaded). */
+export async function getAuthenticatedUserLogin(): Promise<string> {
+  const { data } = await getOctokit().rest.users.getAuthenticated();
+  return data.login;
 }
 
-/**
- * Gets the number of repos (public + private) by a user.
- * @param {string} username The name of the user/org.
- */
-export const getNumRepos = async (username: string) => {
+export const getNumRepos = async (username: string): Promise<number> => {
+  const octokit = getOctokit();
   const accountType = await getAccountType(username);
   if (accountType === AccountType.USER) {
-    const user = await octokit.users.getByUsername({
-      username,
-    });
-    return user.data.public_repos; // TODO PRIVATE REPOS
-  } else if (accountType === AccountType.ORG) {
-    const org = await octokit.orgs.get({
-      org: username,
-    });
-    return org.data.public_repos + org.data.owned_private_repos;
+    const user = await octokit.rest.users.getByUsername({ username });
+    return user.data.public_repos ?? 0;
   }
-  return -1; // Should never happen.
-};
-
-/**
- * Gets a list of users
- */
-export const getUsers = async () => {
-  const users = await octokit.users.list({
-
-  });
-  users.data.map((user) => {
-    console.log(user.url);
-  });
+  if (accountType === AccountType.ORG) {
+    const org = await octokit.rest.orgs.get({ org: username });
+    return (org.data.public_repos ?? 0) + (org.data.owned_private_repos ?? 0);
+  }
+  return -1;
 };
