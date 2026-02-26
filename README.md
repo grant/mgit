@@ -6,6 +6,16 @@ Clone all repos for a GitHub user or organization.
 npm i -g @grant/mgit
 ```
 
+## Features
+
+**Current**
+
+- Clones every repo for a user or org
+- Skips archived repos (reported in summary)
+- Optional `--pull` to git pull in existing repos (off by default)
+- Progress table: new vs existing, per-repo time, total progress with elapsed time
+- Configurable timeout per clone (default 5m) with `--timeout=SECONDS`; timed-out repos retried at end; slow/skip/fail clearly marked
+
 ## Commands
 
 ```sh
@@ -19,8 +29,10 @@ mgit status          # List repos cloned for this user/org
 Clones every repository at `github.com/<owner>` (user or org) into the current directory. If you omit `owner`, it uses the GitHub user for your saved token.
 
 ```sh
-mgit clone           # clone all repos for the authenticated user
-mgit clone google    # clone all of google's repos
+mgit clone                    # clone all repos for the authenticated user
+mgit clone google             # clone all of google's repos
+mgit clone --pull             # clone missing repos and git pull in existing ones
+mgit clone --timeout=120      # 2-minute timeout per clone (default: 300)
 ```
 
 After cloning, mgit writes a `.mgit.json` file in the current directory with the owner and list of repo names so `mgit status` knows what you have.

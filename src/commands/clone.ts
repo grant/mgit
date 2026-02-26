@@ -12,8 +12,8 @@ const EXISTS = '−';
 const CROSS = '✗';
 const SKIP = '⏱';
 const FAST_MS = 1000;
-const CLONE_TIMEOUT_MS = 5 * 60 * 1000; // 5 minutes
-const TIMEOUT_NOTE_AFTER_MS = 1 * 60 * 1000; // show " / 5m elapsed" after 1 min
+const DEFAULT_CLONE_TIMEOUT_SEC = 5 * 60; // 5 minutes
+const TIMEOUT_NOTE_AFTER_MS = 1 * 60 * 1000; // show " / Xm" after 1 min
 const ELAPSED_INTERVAL_MS = 100;
 const INDEX_WIDTH = 7;   // "  1/305"
 const TIME_WIDTH = 10;   // "    14s", "  1m 58s"
@@ -39,7 +39,7 @@ function tableRow(
   return opts.fast ? chalk.dim(colored) : colored;
 }
 
-export async function clone(ownerArg?: string) {
+export async function clone(ownerArg?: string, opts?: { pull?: boolean; timeout?: string }) {
   const start = Date.now();
   await loadAPICredentials();
   const owner = ownerArg?.trim() ? ownerArg.trim() : await getAuthenticatedUserLogin();
@@ -50,8 +50,12 @@ export async function clone(ownerArg?: string) {
     console.log(chalk.dim(`Skipping ${archivedCount} archived repos.`));
   }
 
+  const timeoutSec = opts?.timeout != null ? parseInt(String(opts.timeout), 10) : DEFAULT_CLONE_TIMEOUT_SEC;
+  const cloneTimeoutMs = (Number.isNaN(timeoutSec) ? DEFAULT_CLONE_TIMEOUT_SEC : Math.max(1, timeoutSec)) * 1000;
+  const timeoutLabel = formatDuration(cloneTimeoutMs);
+
   const total = data.length;
-  const nameWidth = Math.min(42, Math.max(20, ...data.map((d) => d.name.length)));
+  const nameWidth = Math.min(50, Math.max(28, ...data.map((d) => d.full_name.length)));
   console.log(`Cloning ${total} repositories from ${owner}...`);
   const header = `  ${'Time'.padStart(TIME_WIDTH)}  ${'#'.padStart(INDEX_WIDTH)}  ${'Repo'.padEnd(nameWidth)}`;
   console.log(chalk.dim(header));
@@ -77,11 +81,11 @@ export async function clone(ownerArg?: string) {
       const percent = Math.round(((i + 1) / total) * 100);
       const clonePctStr = clonePercent != null ? ` (${clonePercent}%)` : '';
       const timePart = repoElapsed >= TIMEOUT_NOTE_AFTER_MS
-        ? `${formatDuration(repoElapsed)} / 5m`
+        ? `${formatDuration(repoElapsed)} / ${timeoutLabel}`
         : formatDuration(repoElapsed);
       const time = timePart.padStart(TIME_WIDTH);
       const idx = `${i + 1}/${total}`.padStart(INDEX_WIDTH);
-      const nameCol = datum.name.padEnd(nameWidth);
+      const nameCol = datum.full_name.padEnd(nameWidth);
       spinner.setSpinnerTitle(`${time}  ${idx}  ${nameCol} · Total progress ${percent}% - Elapsed ${totalElapsedStr}${clonePctStr}`);
     };
 
@@ -92,28 +96,28 @@ export async function clone(ownerArg?: string) {
     let rowToPrint: string | null = null;
     try {
       const timeoutPromise = new Promise<never>((_, reject) => {
-        setTimeout(() => reject(CLONE_TIMEOUT_ERR), CLONE_TIMEOUT_MS);
+        setTimeout(() => reject(CLONE_TIMEOUT_ERR), cloneTimeoutMs);
       });
       const clonePromise = gitClone(
         getGitURL(datum.full_name),
         datum.name,
         undefined,
-        { noSpinner: true, onProgress: (p) => { clonePercent = p; updateSpinnerWithElapsed(); } }
+        { noSpinner: true, onProgress: (p) => { clonePercent = p; updateSpinnerWithElapsed(); }, pullIfExists: opts?.pull }
       );
       const result = await Promise.race([clonePromise, timeoutPromise]);
       repoNames.push(datum.name);
       if (result === 'new') newCount++;
       else existsCount++;
       const repoMs = Date.now() - repoStart;
-      rowToPrint = tableRow(result === 'new' ? CHECK : EXISTS, repoMs, i + 1, total, datum.name, nameWidth, { fast: repoMs < FAST_MS });
+      rowToPrint = tableRow(result === 'new' ? CHECK : EXISTS, repoMs, i + 1, total, datum.full_name, nameWidth, { fast: repoMs < FAST_MS });
     } catch (err) {
       const repoMs = Date.now() - repoStart;
       if (err === CLONE_TIMEOUT_ERR) {
         skipped.push(datum);
-        rowToPrint = tableRow(SKIP, CLONE_TIMEOUT_MS, i + 1, total, datum.name + ' (skipped)', nameWidth, { skipped: true });
+        rowToPrint = tableRow(SKIP, cloneTimeoutMs, i + 1, total, datum.full_name + ' (skipped)', nameWidth, { skipped: true });
       } else {
         failedCount++;
-        rowToPrint = tableRow(CROSS, repoMs, i + 1, total, datum.name, nameWidth, { failed: true });
+        rowToPrint = tableRow(CROSS, repoMs, i + 1, total, datum.full_name, nameWidth, { failed: true });
       }
     } finally {
       clearInterval(interval);
@@ -134,11 +138,11 @@ export async function clone(ownerArg?: string) {
         if (result === 'new') newCount++;
         else existsCount++;
         const repoMs = Date.now() - repoStart;
-        process.stdout.write('\r' + tableRow(result === 'new' ? CHECK : EXISTS, repoMs, r + 1, retryTotal, datum.name, nameWidth, { fast: repoMs < FAST_MS }) + '\n');
+        process.stdout.write('\r' + tableRow(result === 'new' ? CHECK : EXISTS, repoMs, r + 1, retryTotal, datum.full_name, nameWidth, { fast: repoMs < FAST_MS }) + '\n');
       } catch {
         failedCount++;
         const repoMs = Date.now() - repoStart;
-        process.stdout.write('\r' + tableRow(CROSS, repoMs, r + 1, retryTotal, datum.name, nameWidth, { failed: true }) + '\n');
+        process.stdout.write('\r' + tableRow(CROSS, repoMs, r + 1, retryTotal, datum.full_name, nameWidth, { failed: true }) + '\n');
       }
     }
   }

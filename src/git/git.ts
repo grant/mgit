@@ -27,10 +27,14 @@ export async function clone(
   gitURL: string,
   path: string,
   spinnerTitle?: string,
-  opts?: { noSpinner?: boolean; onProgress?: (percent: number) => void }
+  opts?: { noSpinner?: boolean; onProgress?: (percent: number) => void; pullIfExists?: boolean }
 ): Promise<CloneResult> {
   const exists = await fs.access(path).then(() => true).catch(() => false);
   if (exists) {
+    if (opts?.pullIfExists) {
+      const git = simpleGit(path);
+      await withRetry(() => git.pull(), { maxAttempts: 3, delayMs: 2000 });
+    }
     return 'exists';
   }
   if (!opts?.noSpinner) {

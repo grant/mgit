@@ -20,9 +20,11 @@ program
 program
   .command("clone [owner]")
   .description("Clone all repos for a user/org (default: authenticated user)")
-  .action(async (owner: string) => {
+  .option("--pull", "git pull in existing repos")
+  .option("--timeout <seconds>", "timeout per clone in seconds (default: 300)")
+  .action(async (owner: string, opts: { pull?: boolean; timeout?: string }) => {
     try {
-      await clone(owner);
+      await clone(owner, opts);
     } catch (err) {
       if (err instanceof Error && err.message.includes('mgit is not set up')) {
         printInitPrompt('mgit is not set up.');
