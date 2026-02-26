@@ -15,8 +15,8 @@ const FAST_MS = 1000;
 const DEFAULT_CLONE_TIMEOUT_SEC = 5 * 60; // 5 minutes
 const TIMEOUT_NOTE_AFTER_MS = 1 * 60 * 1000; // show " / Xm" after 1 min
 const ELAPSED_INTERVAL_MS = 100;
-const INDEX_WIDTH = 7;   // "  1/305"
-const TIME_WIDTH = 10;   // "    14s", "  1m 58s"
+const INDEX_WIDTH = 7; // "  1/305"
+const TIME_WIDTH = 10; // "    14s", "  1m 58s"
 
 const CLONE_TIMEOUT_ERR = Symbol('CLONE_TIMEOUT');
 
@@ -27,7 +27,7 @@ function tableRow(
   total: number,
   name: string,
   nameWidth: number,
-  opts: { failed?: boolean; skipped?: boolean; fast?: boolean }
+  opts: { failed?: boolean; skipped?: boolean; fast?: boolean },
 ): string {
   const time = formatDuration(ms).padStart(TIME_WIDTH);
   const idx = `${index}/${total}`.padStart(INDEX_WIDTH);
@@ -39,10 +39,15 @@ function tableRow(
   return opts.fast ? chalk.dim(colored) : colored;
 }
 
-export async function clone(ownerArg?: string, opts?: { pull?: boolean; timeout?: string }) {
+export async function clone(
+  ownerArg?: string,
+  opts?: { pull?: boolean; timeout?: string },
+) {
   const start = Date.now();
   await loadAPICredentials();
-  const owner = ownerArg?.trim() ? ownerArg.trim() : await getAuthenticatedUserLogin();
+  const owner = ownerArg?.trim()
+    ? ownerArg.trim()
+    : await getAuthenticatedUserLogin();
   const allRepos = await apilist(owner);
   const archivedCount = allRepos.filter((r) => r.archived).length;
   const data = allRepos.filter((r) => !r.archived);
@@ -50,12 +55,21 @@ export async function clone(ownerArg?: string, opts?: { pull?: boolean; timeout?
     console.log(chalk.dim(`Skipping ${archivedCount} archived repos.`));
   }
 
-  const timeoutSec = opts?.timeout != null ? parseInt(String(opts.timeout), 10) : DEFAULT_CLONE_TIMEOUT_SEC;
-  const cloneTimeoutMs = (Number.isNaN(timeoutSec) ? DEFAULT_CLONE_TIMEOUT_SEC : Math.max(1, timeoutSec)) * 1000;
+  const rawTimeout =
+    opts?.timeout != null
+      ? Number(String(opts.timeout))
+      : DEFAULT_CLONE_TIMEOUT_SEC;
+  const timeoutSec = Number.isNaN(rawTimeout)
+    ? DEFAULT_CLONE_TIMEOUT_SEC
+    : Math.max(1, rawTimeout);
+  const cloneTimeoutMs = timeoutSec * 1000;
   const timeoutLabel = formatDuration(cloneTimeoutMs);
 
   const total = data.length;
-  const nameWidth = Math.min(50, Math.max(28, ...data.map((d) => d.full_name.length)));
+  const nameWidth = Math.min(
+    50,
+    Math.max(28, ...data.map((d) => d.full_name.length)),
+  );
   console.log(`Cloning ${total} repositories from ${owner}...`);
   const header = `  ${'Time'.padStart(TIME_WIDTH)}  ${'#'.padStart(INDEX_WIDTH)}  ${'Repo'.padEnd(nameWidth)}`;
   console.log(chalk.dim(header));
@@ -75,18 +89,22 @@ export async function clone(ownerArg?: string, opts?: { pull?: boolean; timeout?
       const repoElapsed = Date.now() - repoStart;
       const totalElapsed = Date.now() - start;
       const totalSec = totalElapsed / 1000;
-      const totalElapsedStr = totalSec >= 60
-        ? `${Math.floor(totalSec / 60)}m ${(totalSec % 60).toFixed(1)}s`
-        : `${totalSec.toFixed(1)}s`;
+      const totalElapsedStr =
+        totalSec >= 60
+          ? `${Math.floor(totalSec / 60)}m ${(totalSec % 60).toFixed(1)}s`
+          : `${totalSec.toFixed(1)}s`;
       const percent = Math.round(((i + 1) / total) * 100);
       const clonePctStr = clonePercent != null ? ` (${clonePercent}%)` : '';
-      const timePart = repoElapsed >= TIMEOUT_NOTE_AFTER_MS
-        ? `${formatDuration(repoElapsed)} / ${timeoutLabel}`
-        : formatDuration(repoElapsed);
+      const timePart =
+        repoElapsed >= TIMEOUT_NOTE_AFTER_MS
+          ? `${formatDuration(repoElapsed)} / ${timeoutLabel}`
+          : formatDuration(repoElapsed);
       const time = timePart.padStart(TIME_WIDTH);
       const idx = `${i + 1}/${total}`.padStart(INDEX_WIDTH);
       const nameCol = datum.full_name.padEnd(nameWidth);
-      spinner.setSpinnerTitle(`${time}  ${idx}  ${nameCol} · Total progress ${percent}% - Elapsed ${totalElapsedStr}${clonePctStr}`);
+      spinner.setSpinnerTitle(
+        `${time}  ${idx}  ${nameCol} · Total progress ${percent}% - Elapsed ${totalElapsedStr}${clonePctStr}`,
+      );
     };
 
     updateSpinnerWithElapsed();
@@ -102,22 +120,53 @@ export async function clone(ownerArg?: string, opts?: { pull?: boolean; timeout?
         getGitURL(datum.full_name),
         datum.name,
         undefined,
-        { noSpinner: true, onProgress: (p) => { clonePercent = p; updateSpinnerWithElapsed(); }, pullIfExists: opts?.pull }
+        {
+          noSpinner: true,
+          onProgress: (p) => {
+            clonePercent = p;
+            updateSpinnerWithElapsed();
+          },
+          pullIfExists: opts?.pull,
+        },
       );
       const result = await Promise.race([clonePromise, timeoutPromise]);
       repoNames.push(datum.name);
       if (result === 'new') newCount++;
       else existsCount++;
       const repoMs = Date.now() - repoStart;
-      rowToPrint = tableRow(result === 'new' ? CHECK : EXISTS, repoMs, i + 1, total, datum.full_name, nameWidth, { fast: repoMs < FAST_MS });
+      rowToPrint = tableRow(
+        result === 'new' ? CHECK : EXISTS,
+        repoMs,
+        i + 1,
+        total,
+        datum.full_name,
+        nameWidth,
+        { fast: repoMs < FAST_MS },
+      );
     } catch (err) {
       const repoMs = Date.now() - repoStart;
       if (err === CLONE_TIMEOUT_ERR) {
         skipped.push(datum);
-        rowToPrint = tableRow(SKIP, cloneTimeoutMs, i + 1, total, datum.full_name + ' (skipped)', nameWidth, { skipped: true });
+        rowToPrint = tableRow(
+          SKIP,
+          cloneTimeoutMs,
+          i + 1,
+          total,
+          datum.full_name + ' (skipped)',
+          nameWidth,
+          { skipped: true },
+        );
       } else {
         failedCount++;
-        rowToPrint = tableRow(CROSS, repoMs, i + 1, total, datum.full_name, nameWidth, { failed: true });
+        rowToPrint = tableRow(
+          CROSS,
+          repoMs,
+          i + 1,
+          total,
+          datum.full_name,
+          nameWidth,
+          { failed: true },
+        );
       }
     } finally {
       clearInterval(interval);
@@ -127,22 +176,47 @@ export async function clone(ownerArg?: string, opts?: { pull?: boolean; timeout?
   }
 
   if (skipped.length > 0) {
-    console.log(chalk.dim(`Retrying ${skipped.length} skipped (timeout) repos...`));
+    console.log(
+      chalk.dim(`Retrying ${skipped.length} skipped (timeout) repos...`),
+    );
     const retryTotal = skipped.length;
     for (let r = 0; r < skipped.length; r++) {
       const datum = skipped[r];
       const repoStart = Date.now();
       try {
-        const result = await gitClone(getGitURL(datum.full_name), datum.name, undefined, { noSpinner: true });
+        const result = await gitClone(
+          getGitURL(datum.full_name),
+          datum.name,
+          undefined,
+          { noSpinner: true },
+        );
         repoNames.push(datum.name);
         if (result === 'new') newCount++;
         else existsCount++;
         const repoMs = Date.now() - repoStart;
-        process.stdout.write('\r' + tableRow(result === 'new' ? CHECK : EXISTS, repoMs, r + 1, retryTotal, datum.full_name, nameWidth, { fast: repoMs < FAST_MS }) + '\n');
+        const row = tableRow(
+          result === 'new' ? CHECK : EXISTS,
+          repoMs,
+          r + 1,
+          retryTotal,
+          datum.full_name,
+          nameWidth,
+          { fast: repoMs < FAST_MS },
+        );
+        process.stdout.write('\r' + row + '\n');
       } catch {
         failedCount++;
         const repoMs = Date.now() - repoStart;
-        process.stdout.write('\r' + tableRow(CROSS, repoMs, r + 1, retryTotal, datum.full_name, nameWidth, { failed: true }) + '\n');
+        const row = tableRow(
+          CROSS,
+          repoMs,
+          r + 1,
+          retryTotal,
+          datum.full_name,
+          nameWidth,
+          { failed: true },
+        );
+        process.stdout.write('\r' + row + '\n');
       }
     }
   }
@@ -160,8 +234,12 @@ export async function clone(ownerArg?: string, opts?: { pull?: boolean; timeout?
   const parts = [`Done in ${formatDuration(elapsed)}`];
   if (newCount) parts.push(`${newCount} new`);
   if (existsCount) parts.push(`${existsCount} existing`);
-  if (archivedCount > 0) parts.push(chalk.dim(`${archivedCount} archived (skipped)`));
-  if (skipped.length > 0) parts.push(chalk.yellow(`${skipped.length} skipped (timeout)`));
+  if (archivedCount > 0) {
+    parts.push(chalk.dim(`${archivedCount} archived (skipped)`));
+  }
+  if (skipped.length > 0) {
+    parts.push(chalk.yellow(`${skipped.length} skipped (timeout)`));
+  }
   if (failedCount) parts.push(chalk.red(`${failedCount} failed`));
   console.log(parts.join('. ') + '.');
   process.exit(0);

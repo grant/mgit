@@ -8,7 +8,7 @@ const DEFAULT_DELAY_MS = 2000;
 
 export async function withRetry<T>(
   fn: () => Promise<T>,
-  opts: { maxAttempts?: number; delayMs?: number } = {}
+  opts: { maxAttempts?: number; delayMs?: number } = {},
 ): Promise<T> {
   const maxAttempts = opts.maxAttempts ?? DEFAULT_RETRIES;
   const delayMs = opts.delayMs ?? DEFAULT_DELAY_MS;

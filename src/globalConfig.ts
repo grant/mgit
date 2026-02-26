@@ -38,7 +38,8 @@ export function getGlobalConfigPath(): string {
 }
 
 const INIT_RUN_LINE = 'Run: mgit init';
-const TOKEN_URL_LINE = 'Create a token at https://github.com/settings/tokens (repo scope)';
+const TOKEN_URL_LINE =
+  'Create a token at https://github.com/settings/tokens (repo scope)';
 
 export function printInitPrompt(prefix: string, includeTokenUrl = false): void {
   console.error(prefix);

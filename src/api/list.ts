@@ -26,7 +26,9 @@ export async function apilist(owner: string): Promise<RepoInfo[]> {
   const getList = async (p: number) => {
     const rangeStart = (p - 1) * MAX_PAGE_SIZE;
     const rangeEnd = Math.min(p * MAX_PAGE_SIZE, totalRepos);
-    spinner.setSpinnerTitle(`Getting repos from ${owner} ${rangeStart}-${rangeEnd}/${totalRepos}...`);
+    spinner.setSpinnerTitle(
+      `Getting repos from ${owner} ${rangeStart}-${rangeEnd}/${totalRepos}...`,
+    );
     if (accountType === AccountType.ORG) {
       return await octokit.rest.repos.listForOrg({
         org: owner,
@@ -43,7 +45,10 @@ export async function apilist(owner: string): Promise<RepoInfo[]> {
 
   spinner.start();
   while (!listIsEmpty) {
-    const list = await withRetry(() => getList(page), { maxAttempts: 3, delayMs: 1000 });
+    const list = await withRetry(() => getList(page), {
+      maxAttempts: 3,
+      delayMs: 1000,
+    });
     const pageData = list.data.map((r) => ({
       full_name: r.full_name,
       name: r.name,

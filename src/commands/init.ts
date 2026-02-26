@@ -1,6 +1,10 @@
 import * as readline from 'node:readline/promises';
 import { stdin as input, stdout as output } from 'node:process';
-import { writeGlobalConfig, getGlobalConfigPath, printInitPrompt } from '../globalConfig.js';
+import {
+  writeGlobalConfig,
+  getGlobalConfigPath,
+  printInitPrompt,
+} from '../globalConfig.js';
 
 export async function init(tokenArg?: string): Promise<void> {
   let token = tokenArg?.trim();

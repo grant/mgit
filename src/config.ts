@@ -12,7 +12,9 @@ function configPath(cwd: string = process.cwd()): string {
   return path.join(cwd, CONFIG_FILENAME);
 }
 
-export async function readConfig(cwd: string = process.cwd()): Promise<MgitConfig | null> {
+export async function readConfig(
+  cwd: string = process.cwd(),
+): Promise<MgitConfig | null> {
   const p = configPath(cwd);
   try {
     await fs.access(p);
@@ -27,7 +29,10 @@ export async function readConfig(cwd: string = process.cwd()): Promise<MgitConfi
   }
 }
 
-export async function writeConfig(config: MgitConfig, cwd: string = process.cwd()): Promise<void> {
+export async function writeConfig(
+  config: MgitConfig,
+  cwd: string = process.cwd(),
+): Promise<void> {
   const p = configPath(cwd);
   await fs.writeFile(p, JSON.stringify(config, null, 2), 'utf8');
 }
