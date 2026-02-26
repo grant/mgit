@@ -87,7 +87,7 @@ Then `npm i -g @grant/mgit` will install the new version.
 
 1. **Conventional commits** — Use `fix:`, `feat:`, or `feat!:` (breaking) in commit messages so Release Please can bump the version.
 2. **Release PR** — On push to `main`, Release Please opens or updates a release PR (version + CHANGELOG). Merge it to create the GitHub release.
-3. **npm** — When that release is published, the **Publish to npm** workflow runs. Add a repo secret **NPM_TOKEN** (npm [granular access token](https://www.npmjs.com/settings/~/tokens) with Read and write for the package scope). The workflow uses it to run `npm publish --access public`.
+3. **npm** — When that release is published, the **Publish to npm** workflow runs. Add a repo secret **NPM_TOKEN** (npm [granular access token](https://www.npmjs.com/settings/~/tokens) with Read and write for the package scope). The workflow uses it to run `npm publish --access public`. Check that it's set: `gh secret list` (NPM_TOKEN should appear; requires [GitHub CLI](https://cli.github.com/)).
 
 After each merged release PR, the new version is on npm and installable with `npm i -g @grant/mgit`.
 
