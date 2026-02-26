@@ -1,7 +1,7 @@
 import { AccountType, getAccountType } from './utils.js';
 import { getNumRepos } from './user.js';
 import { getOctokit } from '../github/auth.js';
-import { spinner } from '../utils.js';
+import { spinner, withRetry } from '../utils.js';
 
 const MAX_PAGE_SIZE = 100;
 
@@ -25,7 +25,7 @@ export async function apilist(owner: string): Promise<RepoInfo[]> {
   const getList = async (p: number) => {
     const rangeStart = (p - 1) * MAX_PAGE_SIZE;
     const rangeEnd = Math.min(p * MAX_PAGE_SIZE, totalRepos);
-    spinner.setSpinnerTitle(`Getting repos ${rangeStart}-${rangeEnd}/${totalRepos}...`);
+    spinner.setSpinnerTitle(`Getting repos from ${owner} ${rangeStart}-${rangeEnd}/${totalRepos}...`);
     if (accountType === AccountType.ORG) {
       return await octokit.rest.repos.listForOrg({
         org: owner,
@@ -42,7 +42,7 @@ export async function apilist(owner: string): Promise<RepoInfo[]> {
 
   spinner.start();
   while (!listIsEmpty) {
-    const list = await getList(page);
+    const list = await withRetry(() => getList(page), { maxAttempts: 3, delayMs: 1000 });
     allData = allData.concat(list.data);
     if (list.data.length < MAX_PAGE_SIZE) {
       listIsEmpty = true;

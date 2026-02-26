@@ -2,7 +2,7 @@ import chalk from 'chalk';
 import { readConfig } from '../config.js';
 
 export async function status() {
-  const config = readConfig();
+  const config = await readConfig();
   if (!config) {
     console.log('No .mgit.json found. Run `mgit clone [owner]` first.');
     return;

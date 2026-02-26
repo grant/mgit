@@ -1,26 +1,146 @@
-import { getGitURL } from '../utils.js';
+import chalk from 'chalk';
+import { getGitURL, formatDuration, spinner } from '../utils.js';
 import { apilist } from '../api/list.js';
+import type { RepoInfo } from '../api/list.js';
 import { getAuthenticatedUserLogin } from '../api/user.js';
 import { clone as gitClone } from '../git/git.js';
 import { loadAPICredentials } from '../github/auth.js';
 import { readConfig, writeConfig } from '../config.js';
 
+const CHECK = '✓';
+const CROSS = '✗';
+const SKIP = '⏱';
+const CLONE_TIMEOUT_MS = 5 * 60 * 1000; // 5 minutes
+const TIMEOUT_NOTE_AFTER_MS = 1 * 60 * 1000; // show " / 5m elapsed" after 1 min
+const ELAPSED_INTERVAL_MS = 1000;
+const INDEX_WIDTH = 7;   // "  1/305"
+const TIME_WIDTH = 10;   // "    14s", "  1m 58s"
+
+const CLONE_TIMEOUT_ERR = Symbol('CLONE_TIMEOUT');
+
+function tableRow(
+  status: string,
+  ms: number,
+  index: number,
+  total: number,
+  name: string,
+  nameWidth: number,
+  opts: { failed?: boolean; skipped?: boolean }
+): string {
+  const time = formatDuration(ms).padStart(TIME_WIDTH);
+  const idx = `${index}/${total}`.padStart(INDEX_WIDTH);
+  const nameCol = name.padEnd(nameWidth);
+  const line = `${status} ${time}  ${idx}  ${nameCol}`;
+  if (opts.failed) return chalk.red(line);
+  if (opts.skipped) return chalk.yellow(line);
+  return chalk.green(line);
+}
+
 export async function clone(ownerArg?: string) {
+  const start = Date.now();
   await loadAPICredentials();
-  const owner = ownerArg && ownerArg.trim() ? ownerArg.trim() : await getAuthenticatedUserLogin();
+  const owner = ownerArg?.trim() ? ownerArg.trim() : await getAuthenticatedUserLogin();
   const data = await apilist(owner);
 
-  console.log(`Cloning ${data.length} repositories...`);
+  const total = data.length;
+  const nameWidth = Math.min(42, Math.max(20, ...data.map((d) => d.name.length)));
+  console.log(`Cloning ${total} repositories from ${owner}...`);
+  const header = `  ${'Time'.padStart(TIME_WIDTH)}  ${'#'.padStart(INDEX_WIDTH)}  ${'Repo'.padEnd(nameWidth)}`;
+  console.log(chalk.dim(header));
+
   const repoNames: string[] = [];
-  for (const datum of data) {
-    const gitURL = getGitURL(datum.full_name);
-    await gitClone(gitURL, datum.name);
-    repoNames.push(datum.name);
+  const skipped: RepoInfo[] = [];
+  let newCount = 0;
+  let existsCount = 0;
+  let failedCount = 0;
+
+  for (let i = 0; i < data.length; i++) {
+    const datum = data[i];
+    const repoStart = Date.now();
+    const progressBase = `Cloning ${i + 1}/${total}: ${datum.name}`;
+    let clonePercent: number | null = null;
+
+    const updateSpinnerWithElapsed = () => {
+      const repoElapsed = Date.now() - repoStart;
+      const percentStr = clonePercent != null ? ` ${clonePercent}%` : '';
+      const timePart = repoElapsed >= TIMEOUT_NOTE_AFTER_MS
+        ? `${formatDuration(repoElapsed)} / 5m elapsed`
+        : `${formatDuration(repoElapsed)} elapsed`;
+      spinner.setSpinnerTitle(`${progressBase} (${timePart})${percentStr}`);
+    };
+
+    updateSpinnerWithElapsed();
+    spinner.start();
+    const interval = setInterval(updateSpinnerWithElapsed, ELAPSED_INTERVAL_MS);
+
+    let rowToPrint: string | null = null;
+    try {
+      const timeoutPromise = new Promise<never>((_, reject) => {
+        setTimeout(() => reject(CLONE_TIMEOUT_ERR), CLONE_TIMEOUT_MS);
+      });
+      const clonePromise = gitClone(
+        getGitURL(datum.full_name),
+        datum.name,
+        progressBase,
+        { noSpinner: true, onProgress: (p) => { clonePercent = p; updateSpinnerWithElapsed(); } }
+      );
+      const result = await Promise.race([clonePromise, timeoutPromise]);
+      repoNames.push(datum.name);
+      if (result === 'new') newCount++;
+      else existsCount++;
+      const repoMs = Date.now() - repoStart;
+      rowToPrint = tableRow(CHECK, repoMs, i + 1, total, datum.name, nameWidth, {});
+    } catch (err) {
+      const repoMs = Date.now() - repoStart;
+      if (err === CLONE_TIMEOUT_ERR) {
+        skipped.push(datum);
+        rowToPrint = tableRow(SKIP, CLONE_TIMEOUT_MS, i + 1, total, datum.name + ' (skipped)', nameWidth, { skipped: true });
+      } else {
+        failedCount++;
+        rowToPrint = tableRow(CROSS, repoMs, i + 1, total, datum.name, nameWidth, { failed: true });
+      }
+    } finally {
+      clearInterval(interval);
+      spinner.stop(true);
+      if (rowToPrint) process.stdout.write('\r' + rowToPrint + '\n');
+    }
   }
 
-  const existing = readConfig();
-  writeConfig({
+  if (skipped.length > 0) {
+    console.log(chalk.dim(`Retrying ${skipped.length} skipped (timeout) repos...`));
+    const retryTotal = skipped.length;
+    for (let r = 0; r < skipped.length; r++) {
+      const datum = skipped[r];
+      const repoStart = Date.now();
+      try {
+        const result = await gitClone(getGitURL(datum.full_name), datum.name, undefined, { noSpinner: true });
+        repoNames.push(datum.name);
+        if (result === 'new') newCount++;
+        else existsCount++;
+        const repoMs = Date.now() - repoStart;
+        process.stdout.write('\r' + tableRow(CHECK, repoMs, r + 1, retryTotal, datum.name, nameWidth, {}) + '\n');
+      } catch {
+        failedCount++;
+        const repoMs = Date.now() - repoStart;
+        process.stdout.write('\r' + tableRow(CROSS, repoMs, r + 1, retryTotal, datum.name, nameWidth, { failed: true }) + '\n');
+      }
+    }
+  }
+
+  const existing = await readConfig();
+  await writeConfig({
     owner,
-    repos: existing && existing.owner === owner ? Array.from(new Set([...existing.repos, ...repoNames])) : repoNames,
+    repos:
+      existing && existing.owner === owner
+        ? Array.from(new Set([...existing.repos, ...repoNames]))
+        : repoNames,
   });
+
+  const elapsed = Date.now() - start;
+  const parts = [`Done in ${formatDuration(elapsed)}`];
+  if (newCount) parts.push(`${newCount} new`);
+  if (existsCount) parts.push(`${existsCount} existing`);
+  if (skipped.length > 0) parts.push(chalk.yellow(`${skipped.length} skipped (timeout)`));
+  if (failedCount) parts.push(chalk.red(`${failedCount} failed`));
+  console.log(parts.join('. ') + '.');
 }

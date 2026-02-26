@@ -1,5 +1,5 @@
-import * as path from 'path';
-import * as fs from 'fs';
+import path from 'node:path';
+import fs from 'node:fs/promises';
 
 const CONFIG_FILENAME = '.mgit.json';
 
@@ -12,18 +12,22 @@ function configPath(cwd: string = process.cwd()): string {
   return path.join(cwd, CONFIG_FILENAME);
 }
 
-export function readConfig(cwd: string = process.cwd()): MgitConfig | null {
+export async function readConfig(cwd: string = process.cwd()): Promise<MgitConfig | null> {
   const p = configPath(cwd);
-  if (!fs.existsSync(p)) return null;
-  const raw = fs.readFileSync(p, 'utf8');
   try {
+    await fs.access(p);
+  } catch {
+    return null;
+  }
+  try {
+    const raw = await fs.readFile(p, 'utf8');
     return JSON.parse(raw) as MgitConfig;
   } catch {
     return null;
   }
 }
 
-export function writeConfig(config: MgitConfig, cwd: string = process.cwd()): void {
+export async function writeConfig(config: MgitConfig, cwd: string = process.cwd()): Promise<void> {
   const p = configPath(cwd);
-  fs.writeFileSync(p, JSON.stringify(config, null, 2), 'utf8');
+  await fs.writeFile(p, JSON.stringify(config, null, 2), 'utf8');
 }
