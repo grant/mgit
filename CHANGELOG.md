@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.1](https://github.com/grant/mgit/compare/v1.1.0...v1.1.1) (2026-02-26)
+
+
+### Bug Fixes
+
+* fix release pipeline ([7f88452](https://github.com/grant/mgit/commit/7f884522404cebb488e7f19e76e019ee01aceac4))
+
 ## [1.1.0](https://github.com/grant/mgit/compare/v1.0.0...v1.1.0) (2026-02-26)
 
 
