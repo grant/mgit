@@ -1,14 +1,8 @@
 name: Publish to npm
 
 on:
-  push:
-    tags:
-      - 'v*'
-  workflow_dispatch:
-    inputs:
-      tag:
-        description: 'Tag to publish (e.g. v1.0.0). Leave empty to use the triggering ref.'
-        required: false
+  release:
+    types: [published]
 
 permissions:
   id-token: write
@@ -20,7 +14,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: ${{ inputs.tag && format('refs/tags/{0}', inputs.tag) || github.ref }}
+          ref: refs/tags/${{ github.event.release.tag_name }}
       - uses: actions/setup-node@v4
         with:
           node-version: "22"

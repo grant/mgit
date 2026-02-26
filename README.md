@@ -74,7 +74,7 @@ This creates `~/.mgit.json` with your token.
 
 ## Publish (npm)
 
-You can publish from your machine, run the workflow manually from Actions, or let the release pipeline publish when you merge a release PR.
+You can publish from your machine or let the release pipeline publish when you merge a release PR.
 
 ### Manual publish (from your machine)
 
@@ -85,21 +85,11 @@ You can publish from your machine, run the workflow manually from Actions, or le
 
 Then `npm i -g @grant/mgit` will install the new version.
 
-### Manual publish (via GitHub Actions)
-
-To publish a specific tag to npm without publishing a new GitHub release (e.g. to retry a failed publish or publish an existing release):
-
-1. In the repo go to **Actions** → **Publish to npm** → **Run workflow**.
-2. Optionally set **Tag to publish** (e.g. `v1.0.0`). Leave empty to publish the default branch.
-3. Click **Run workflow**.
-
-Uses [npm trusted publisher](https://docs.npmjs.com/generating-provenance-statements#using-third-party-package-publishing-tools) (OIDC); no token in repo secrets.
-
 ### Automated publish (Release Please + GitHub Actions)
 
 1. **Conventional commits** — Use `fix:`, `feat:`, or `feat!:` (breaking) in commit messages so Release Please can bump the version.
-2. **Release PR** — On push to `main`, Release Please opens or updates a release PR (version + CHANGELOG). Merge it to create the GitHub release and push the version tag (e.g. `v1.0.0`).
-3. **npm** — The **Publish to npm** workflow runs on push to `v*` tags. Configure a [trusted publisher](https://docs.npmjs.com/generating-provenance-statements#using-third-party-package-publishing-tools) on the package’s npm page (Package access → Trusted publishers) so publishing uses OIDC—no token in repo secrets.
+2. **Release PR** — On push to `main`, Release Please opens or updates a release PR (version + CHANGELOG). Merge it to create the GitHub release.
+3. **npm** — When the release is published, the **Publish to npm** workflow runs. Configure a [trusted publisher](https://docs.npmjs.com/generating-provenance-statements#using-third-party-package-publishing-tools) on the package’s npm page (Package access → Trusted publishers) so publishing uses OIDC—no token in repo secrets.
 
 After each merged release PR, the new version is on npm and installable with `npm i -g @grant/mgit`.
 
