@@ -74,6 +74,8 @@ This creates `~/.mgit.json` with your token.
 
 ## Publish (npm)
 
+You can publish from your machine, run the workflow manually from Actions, or let the release pipeline publish when you merge a release PR.
+
 ### Manual publish (from your machine)
 
 1. **Bump version** in `package.json` (e.g. set `"version": "1.0.1"`) or run `npm version patch` / `minor` / `major`.
@@ -97,7 +99,7 @@ Uses [npm trusted publisher](https://docs.npmjs.com/generating-provenance-statem
 
 1. **Conventional commits** — Use `fix:`, `feat:`, or `feat!:` (breaking) in commit messages so Release Please can bump the version.
 2. **Release PR** — On push to `main`, Release Please opens or updates a release PR (version + CHANGELOG). Merge it to create the GitHub release and push the version tag (e.g. `v1.0.0`).
-3. **npm** — The **Publish to npm** workflow runs on push to `v*` tags. Configure [npm trusted publisher](https://docs.npmjs.com/generating-provenance-statements#using-third-party-package-publishing-tools) for this repo so publishing uses OIDC (no NPM_TOKEN).
+3. **npm** — The **Publish to npm** workflow runs on push to `v*` tags. Configure a [trusted publisher](https://docs.npmjs.com/generating-provenance-statements#using-third-party-package-publishing-tools) on the package’s npm page (Package access → Trusted publishers) so publishing uses OIDC—no token in repo secrets.
 
 After each merged release PR, the new version is on npm and installable with `npm i -g @grant/mgit`.
 
