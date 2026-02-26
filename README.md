@@ -1,6 +1,6 @@
 # mgit
 
-[![CI](https://github.com/grant/mgit/actions/workflows/ci.yml/badge.svg)](https://github.com/grant/mgit/actions/workflows/ci.yml) [![Release Please](https://github.com/grant/mgit/actions/workflows/release-please.yml/badge.svg)](https://github.com/grant/mgit/actions/workflows/release-please.yml) [![Publish](https://github.com/grant/mgit/actions/workflows/npm-publish.yml/badge.svg)](https://github.com/grant/mgit/actions/workflows/npm-publish.yml) [![npm](https://img.shields.io/npm/v/@grant/mgit.svg)](https://www.npmjs.com/package/@grant/mgit)
+[![CI](https://github.com/grant/mgit/actions/workflows/ci.yml/badge.svg)](https://github.com/grant/mgit/actions/workflows/ci.yml) [![Release Please](https://github.com/grant/mgit/actions/workflows/release-please.yml/badge.svg)](https://github.com/grant/mgit/actions/workflows/release-please.yml) [![npm](https://img.shields.io/npm/v/@grant/mgit.svg)](https://www.npmjs.com/package/@grant/mgit)
 
 Clone all repos for a GitHub user or organization.
 
@@ -72,24 +72,14 @@ This creates `~/.mgit.json` with your token.
 
 ## Publish (npm)
 
-You can publish from your machine or let the release pipeline publish when you merge a release PR.
+Publishing is manual. Release Please still handles version bumps and CHANGELOG via conventional commits on `main`; merge its release PR to update the version in the repo, then publish to npm from your machine.
 
-### Manual publish (from your machine)
-
-1. **Bump version** in `package.json` (e.g. set `"version": "1.0.1"`) or run `npm version patch` / `minor` / `major`.
+1. **Version** — Merge the Release Please PR (or bump `package.json` / `npm version patch|minor|major`).
 2. **Build**: `npm run build:ci`
-3. **Log in** to npm (one-time per machine): `npm login` — enter username, password, and OTP if you use 2FA.
-4. **Publish**: `npm publish --access public` (required for scoped packages like `@grant/mgit`). With 2FA you’ll be prompted for a one-time password; pass it inline with `npm publish --access public --otp=123456` if you prefer.
+3. **Log in** to npm (one-time per machine): `npm login` — username, password, and OTP if you use 2FA.
+4. **Publish**: `npm run release` (runs `npm publish --access public`). With 2FA use `npm publish --access public --otp=123456`.
 
-Then `npm i -g @grant/mgit` will install the new version.
-
-### Automated publish (Release Please + GitHub Actions)
-
-1. **Conventional commits** — Use `fix:`, `feat:`, or `feat!:` (breaking) in commit messages so Release Please can bump the version.
-2. **Release PR** — On push to `main`, Release Please opens or updates a release PR (version + CHANGELOG). Merge it to create the GitHub release.
-3. **npm** — When the release is published, the **Publish to npm** workflow runs. Configure a [trusted publisher](https://docs.npmjs.com/generating-provenance-statements#using-third-party-package-publishing-tools) on the package’s npm page (Package access → Trusted publishers) so publishing uses OIDC—no token in repo secrets.
-
-After each merged release PR, the new version is on npm and installable with `npm i -g @grant/mgit`.
+Then `npm i -g @grant/mgit` installs the new version.
 
 ## Tech
 

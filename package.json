@@ -9,7 +9,7 @@
     "build:ci": "tsc --project tsconfig.json",
     "dev": "tsc --project tsconfig.json --watch",
     "build-fresh": "npm cache clean --force && npm i && npm run build",
-    "publish": "npm publish --access public",
+    "release": "npm publish --access public",
     "lint": "tslint --project tslint.json && echo 'No lint errors. All good!'",
     "fix": "tslint --project tslint.json --fix && npm run prettier",
     "prettier": "npx prettier --write \"src/**/*.ts\""
