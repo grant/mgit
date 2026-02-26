@@ -71,7 +71,8 @@ export async function clone(
     Math.max(28, ...data.map((d) => d.full_name.length)),
   );
   console.log(`Cloning ${total} repositories from ${owner}...`);
-  const header = `  ${'Time'.padStart(TIME_WIDTH)}  ${'#'.padStart(INDEX_WIDTH)}  ${'Repo'.padEnd(nameWidth)}`;
+  const header =
+    `  ${'Time'.padStart(TIME_WIDTH)}  ${'#'.padStart(INDEX_WIDTH)}  ${'Repo'.padEnd(nameWidth)}`;
   console.log(chalk.dim(header));
 
   const repoNames: string[] = [];
