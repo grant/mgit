@@ -49,41 +49,14 @@ This creates `~/.mgit.json` with your token.
 
 ## Develop
 
-Install dependencies:
+1. **Install dependencies:** `npm install`
+2. **Install the CLI from this repo (one-time):** `npm run build` — puts `mgit` on your PATH using this checkout.
+3. **Create global config (one-time):** `mgit init <token>` — use a [GitHub token](https://github.com/settings/tokens) with `repo` scope.
 
-```sh
-npm install
-```
+**Watch:** Use two terminals.
 
-Set up your GitHub token (one-time):
-
-```sh
-mgit init <token>
-```
-
-### Recommended Workflow
-
-The typical workflow uses two terminals:
-
-1. **Terminal 1: Watch/rebuild on save**
-
-    Run the following to rebuild on every change:
-
-    ```sh
-    npm run dev
-    ```
-
-    This watches `.ts` files and recompiles on save.
-
-2. **Terminal 2: Run mgit CLI**
-
-    Test your changes by running commands like:
-
-    ```sh
-    mgit clone
-    ```
-
-    Each run uses the latest build output.
+1. Terminal 1: `npm run dev` — recompiles when you save a `.ts` file.
+2. Terminal 2: `mgit clone`, `mgit status`, etc. — each run uses the latest code.
 
 ## Tech
 

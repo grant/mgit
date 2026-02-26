@@ -7,10 +7,9 @@
     "skipLibCheck": true,
     "esModuleInterop": true,
     "module": "NodeNext",
+    "outDir": "dist",
+    "rootDir": "src"
   },
   "moduleResolution": "NodeNext",
-  "files": [
-    "src/index.ts",
-    // "tests/test.ts"
-  ]
+  "include": ["src/**/*.ts"]
 }

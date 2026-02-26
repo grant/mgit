@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "Clone all repos for a GitHub user or organization",
   "type": "module",
-  "main": "./src/index.js",
+  "main": "./dist/index.js",
   "scripts": {
     "build": "tsc --project tsconfig.json && npm i -g --loglevel=error",
     "dev": "tsc --project tsconfig.json --watch",
@@ -13,7 +13,7 @@
     "prettier": "./node_modules/prettier/bin-prettier.js --parser typescript --single-quote --bracket-spacing --print-width 110 --trailing-comma all src/**/*.ts --write"
   },
   "bin": {
-    "mgit": "./src/index.js"
+    "mgit": "./dist/index.js"
   },
   "repository": {
     "type": "git",

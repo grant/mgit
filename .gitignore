@@ -1,5 +1,5 @@
-*.js
 .mgit.json
+dist/
 *.DS_Store
 *.log
 npm-debug.log*

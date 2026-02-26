@@ -69,6 +69,11 @@ export async function clone(ownerArg?: string) {
 
     const updateSpinnerWithElapsed = () => {
       const repoElapsed = Date.now() - repoStart;
+      const totalElapsed = Date.now() - start;
+      const totalSec = totalElapsed / 1000;
+      const totalElapsedStr = totalSec >= 60
+        ? `${Math.floor(totalSec / 60)}m ${(totalSec % 60).toFixed(1)}s`
+        : `${totalSec.toFixed(1)}s`;
       const percent = Math.round(((i + 1) / total) * 100);
       const clonePctStr = clonePercent != null ? ` (${clonePercent}%)` : '';
       const timePart = repoElapsed >= TIMEOUT_NOTE_AFTER_MS
@@ -77,7 +82,7 @@ export async function clone(ownerArg?: string) {
       const time = timePart.padStart(TIME_WIDTH);
       const idx = `${i + 1}/${total}`.padStart(INDEX_WIDTH);
       const nameCol = datum.name.padEnd(nameWidth);
-      spinner.setSpinnerTitle(`${time}  ${idx}  ${nameCol} · Total progress ${percent}%${clonePctStr}`);
+      spinner.setSpinnerTitle(`${time}  ${idx}  ${nameCol} · Total progress ${percent}% - Elapsed ${totalElapsedStr}${clonePctStr}`);
     };
 
     updateSpinnerWithElapsed();
