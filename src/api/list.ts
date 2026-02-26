@@ -8,6 +8,7 @@ const MAX_PAGE_SIZE = 100;
 export interface RepoInfo {
   full_name: string;
   name: string;
+  archived: boolean;
 }
 
 export async function apilist(owner: string): Promise<RepoInfo[]> {
@@ -43,7 +44,12 @@ export async function apilist(owner: string): Promise<RepoInfo[]> {
   spinner.start();
   while (!listIsEmpty) {
     const list = await withRetry(() => getList(page), { maxAttempts: 3, delayMs: 1000 });
-    allData = allData.concat(list.data);
+    const pageData = list.data.map((r) => ({
+      full_name: r.full_name,
+      name: r.name,
+      archived: r.archived ?? false,
+    }));
+    allData = allData.concat(pageData);
     if (list.data.length < MAX_PAGE_SIZE) {
       listIsEmpty = true;
     } else {

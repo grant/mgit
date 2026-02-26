@@ -40,7 +40,12 @@ export async function clone(ownerArg?: string) {
   const start = Date.now();
   await loadAPICredentials();
   const owner = ownerArg?.trim() ? ownerArg.trim() : await getAuthenticatedUserLogin();
-  const data = await apilist(owner);
+  const allRepos = await apilist(owner);
+  const archivedCount = allRepos.filter((r) => r.archived).length;
+  const data = allRepos.filter((r) => !r.archived);
+  if (archivedCount > 0) {
+    console.log(chalk.dim(`Skipping ${archivedCount} archived repos.`));
+  }
 
   const total = data.length;
   const nameWidth = Math.min(42, Math.max(20, ...data.map((d) => d.name.length)));
@@ -140,6 +145,7 @@ export async function clone(ownerArg?: string) {
   const parts = [`Done in ${formatDuration(elapsed)}`];
   if (newCount) parts.push(`${newCount} new`);
   if (existsCount) parts.push(`${existsCount} existing`);
+  if (archivedCount > 0) parts.push(chalk.dim(`${archivedCount} archived (skipped)`));
   if (skipped.length > 0) parts.push(chalk.yellow(`${skipped.length} skipped (timeout)`));
   if (failedCount) parts.push(chalk.red(`${failedCount} failed`));
   console.log(parts.join('. ') + '.');
