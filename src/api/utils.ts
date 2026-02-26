@@ -12,7 +12,6 @@ export enum AccountType {
 
 /**
  * Gets the GitHub account type (user or organization).
- * @param {string} name The GitHub account name.
  */
 export async function getAccountType(name: string): Promise<AccountType> {
   const octokit = getOctokit();
