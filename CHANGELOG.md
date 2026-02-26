@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.2](https://github.com/grant/mgit/compare/v1.1.1...v1.1.2) (2026-02-26)
+
+
+### Bug Fixes
+
+* minor change to bump semver ([71bfcaa](https://github.com/grant/mgit/commit/71bfcaa6412b0b38bbbc032c2417871ac26176c7))
+
 ## [1.1.1](https://github.com/grant/mgit/compare/v1.1.0...v1.1.1) (2026-02-26)
 
 
