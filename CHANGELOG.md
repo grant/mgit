@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.0](https://github.com/grant/mgit/compare/v1.0.0...v1.1.0) (2026-02-26)
+
+
+### Features
+
+* format time with hours too ([516e8fd](https://github.com/grant/mgit/commit/516e8fd6ac7a25e9b98d138e58adae3c5e36e683))
+
 ## 1.0.0 (2026-02-26)
 
 
