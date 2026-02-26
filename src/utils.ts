@@ -27,10 +27,11 @@ export async function withRetry<T>(
 }
 
 export function formatDuration(ms: number): string {
-  const sec = Math.floor(ms / 1000);
-  if (sec < 60) return `${sec}s`;
-  const min = Math.floor(sec / 60);
-  const s = sec % 60;
+  const sec = ms / 1000;
+  if (sec < 60) return `${sec.toFixed(1)}s`;
+  const secFloor = Math.floor(sec);
+  const min = Math.floor(secFloor / 60);
+  const s = secFloor % 60;
   if (min < 60) return s ? `${min}m ${s}s` : `${min}m`;
   const h = Math.floor(min / 60);
   const m = min % 60;

@@ -8,11 +8,13 @@ import { loadAPICredentials } from '../github/auth.js';
 import { readConfig, writeConfig } from '../config.js';
 
 const CHECK = '✓';
+const EXISTS = '−';
 const CROSS = '✗';
 const SKIP = '⏱';
+const FAST_MS = 1000;
 const CLONE_TIMEOUT_MS = 5 * 60 * 1000; // 5 minutes
 const TIMEOUT_NOTE_AFTER_MS = 1 * 60 * 1000; // show " / 5m elapsed" after 1 min
-const ELAPSED_INTERVAL_MS = 1000;
+const ELAPSED_INTERVAL_MS = 100;
 const INDEX_WIDTH = 7;   // "  1/305"
 const TIME_WIDTH = 10;   // "    14s", "  1m 58s"
 
@@ -25,7 +27,7 @@ function tableRow(
   total: number,
   name: string,
   nameWidth: number,
-  opts: { failed?: boolean; skipped?: boolean }
+  opts: { failed?: boolean; skipped?: boolean; fast?: boolean }
 ): string {
   const time = formatDuration(ms).padStart(TIME_WIDTH);
   const idx = `${index}/${total}`.padStart(INDEX_WIDTH);
@@ -33,7 +35,8 @@ function tableRow(
   const line = `${status} ${time}  ${idx}  ${nameCol}`;
   if (opts.failed) return chalk.red(line);
   if (opts.skipped) return chalk.yellow(line);
-  return chalk.green(line);
+  const colored = chalk.green(line);
+  return opts.fast ? chalk.dim(colored) : colored;
 }
 
 export async function clone(ownerArg?: string) {
@@ -62,16 +65,19 @@ export async function clone(ownerArg?: string) {
   for (let i = 0; i < data.length; i++) {
     const datum = data[i];
     const repoStart = Date.now();
-    const progressBase = `Cloning ${i + 1}/${total}: ${datum.name}`;
     let clonePercent: number | null = null;
 
     const updateSpinnerWithElapsed = () => {
       const repoElapsed = Date.now() - repoStart;
-      const percentStr = clonePercent != null ? ` ${clonePercent}%` : '';
+      const percent = Math.round(((i + 1) / total) * 100);
+      const clonePctStr = clonePercent != null ? ` (${clonePercent}%)` : '';
       const timePart = repoElapsed >= TIMEOUT_NOTE_AFTER_MS
-        ? `${formatDuration(repoElapsed)} / 5m elapsed`
-        : `${formatDuration(repoElapsed)} elapsed`;
-      spinner.setSpinnerTitle(`${progressBase} (${timePart})${percentStr}`);
+        ? `${formatDuration(repoElapsed)} / 5m`
+        : formatDuration(repoElapsed);
+      const time = timePart.padStart(TIME_WIDTH);
+      const idx = `${i + 1}/${total}`.padStart(INDEX_WIDTH);
+      const nameCol = datum.name.padEnd(nameWidth);
+      spinner.setSpinnerTitle(`${time}  ${idx}  ${nameCol} · Total progress ${percent}%${clonePctStr}`);
     };
 
     updateSpinnerWithElapsed();
@@ -86,7 +92,7 @@ export async function clone(ownerArg?: string) {
       const clonePromise = gitClone(
         getGitURL(datum.full_name),
         datum.name,
-        progressBase,
+        undefined,
         { noSpinner: true, onProgress: (p) => { clonePercent = p; updateSpinnerWithElapsed(); } }
       );
       const result = await Promise.race([clonePromise, timeoutPromise]);
@@ -94,7 +100,7 @@ export async function clone(ownerArg?: string) {
       if (result === 'new') newCount++;
       else existsCount++;
       const repoMs = Date.now() - repoStart;
-      rowToPrint = tableRow(CHECK, repoMs, i + 1, total, datum.name, nameWidth, {});
+      rowToPrint = tableRow(result === 'new' ? CHECK : EXISTS, repoMs, i + 1, total, datum.name, nameWidth, { fast: repoMs < FAST_MS });
     } catch (err) {
       const repoMs = Date.now() - repoStart;
       if (err === CLONE_TIMEOUT_ERR) {
@@ -123,7 +129,7 @@ export async function clone(ownerArg?: string) {
         if (result === 'new') newCount++;
         else existsCount++;
         const repoMs = Date.now() - repoStart;
-        process.stdout.write('\r' + tableRow(CHECK, repoMs, r + 1, retryTotal, datum.name, nameWidth, {}) + '\n');
+        process.stdout.write('\r' + tableRow(result === 'new' ? CHECK : EXISTS, repoMs, r + 1, retryTotal, datum.name, nameWidth, { fast: repoMs < FAST_MS }) + '\n');
       } catch {
         failedCount++;
         const repoMs = Date.now() - repoStart;
@@ -149,4 +155,5 @@ export async function clone(ownerArg?: string) {
   if (skipped.length > 0) parts.push(chalk.yellow(`${skipped.length} skipped (timeout)`));
   if (failedCount) parts.push(chalk.red(`${failedCount} failed`));
   console.log(parts.join('. ') + '.');
+  process.exit(0);
 }
