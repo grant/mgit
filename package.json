@@ -15,7 +15,7 @@
     "prettier": "npx prettier --write \"src/**/*.ts\""
   },
   "bin": {
-    "mgit": "./dist/index.js"
+    "mgit": "dist/index.js"
   },
   "repository": {
     "type": "git",
