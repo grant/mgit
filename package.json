@@ -20,12 +20,20 @@
     "type": "git",
     "url": "git+https://github.com/grant/mgit.git"
   },
-  "keywords": ["git", "multiple", "repo"],
+  "keywords": [
+    "git",
+    "multiple",
+    "repo"
+  ],
   "author": "Grant Timmerman",
   "license": "MIT",
-  "bugs": { "url": "https://github.com/grant/mgit/issues" },
+  "bugs": {
+    "url": "https://github.com/grant/mgit/issues"
+  },
   "homepage": "https://github.com/grant/mgit#readme",
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "devDependencies": {
     "@types/cli-spinner": "^0.2.3",
     "@types/node": "^25.0.0",
