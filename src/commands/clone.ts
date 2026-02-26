@@ -89,11 +89,7 @@ export async function clone(
     const updateSpinnerWithElapsed = () => {
       const repoElapsed = Date.now() - repoStart;
       const totalElapsed = Date.now() - start;
-      const totalSec = totalElapsed / 1000;
-      const totalElapsedStr =
-        totalSec >= 60
-          ? `${Math.floor(totalSec / 60)}m ${(totalSec % 60).toFixed(1)}s`
-          : `${totalSec.toFixed(1)}s`;
+      const totalElapsedStr = formatDuration(totalElapsed);
       const percent = Math.round(((i + 1) / total) * 100);
       const clonePctStr = clonePercent != null ? ` (${clonePercent}%)` : '';
       const timePart =
