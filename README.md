@@ -1,6 +1,6 @@
 # mgit
 
-[![CI](https://github.com/grant/mgit/actions/workflows/ci.yml/badge.svg)](https://github.com/grant/mgit/actions/workflows/ci.yml) [![npm](https://img.shields.io/npm/v/@grant/mgit.svg)](https://www.npmjs.com/package/@grant/mgit)
+[![CI](https://github.com/grant/mgit/actions/workflows/ci.yml/badge.svg)](https://github.com/grant/mgit/actions/workflows/ci.yml) [![Release Please](https://github.com/grant/mgit/actions/workflows/release-please.yml/badge.svg)](https://github.com/grant/mgit/actions/workflows/release-please.yml) [![Publish](https://github.com/grant/mgit/actions/workflows/npm-publish.yml/badge.svg)](https://github.com/grant/mgit/actions/workflows/npm-publish.yml) [![npm](https://img.shields.io/npm/v/@grant/mgit.svg)](https://www.npmjs.com/package/@grant/mgit)
 
 Clone all repos for a GitHub user or organization.
 
@@ -87,7 +87,7 @@ Then `npm i -g @grant/mgit` will install the new version.
 
 1. **Conventional commits** — Use `fix:`, `feat:`, or `feat!:` (breaking) in commit messages so Release Please can bump the version.
 2. **Release PR** — On push to `main`, Release Please opens or updates a release PR (version + CHANGELOG). Merge it to create the GitHub release.
-3. **npm** — When that release is published, the **Publish to npm** workflow runs. Use [Trusted Publishers](https://docs.npmjs.com/trusted-publishers) (no token, no expiry): on [npmjs.com](https://www.npmjs.com/) go to your package → **Settings** → **Trusted publishing** → add **GitHub Actions** → set **Workflow filename** to `npm-publish.yml` (must match `.github/workflows/npm-publish.yml`). No secrets needed; npm accepts the workflow via OIDC.
+3. **npm** — When that release is published, the **Publish to npm** workflow runs. Add a repo secret **NPM_TOKEN** (npm [granular access token](https://www.npmjs.com/settings/~/tokens) with Read and write for the package scope). The workflow uses it to run `npm publish --access public`.
 
 After each merged release PR, the new version is on npm and installable with `npm i -g @grant/mgit`.
 
