@@ -70,6 +70,25 @@ This creates `~/.mgit.json` with your token.
 1. Terminal 1: `npm run dev` — recompiles when you save a `.ts` file.
 2. Terminal 2: `mgit clone`, `mgit status`, etc. — each run uses the latest code.
 
+## Publish (npm)
+
+### Manual publish
+
+1. **Bump version** in `package.json` (e.g. set `"version": "1.0.1"`) or run `npm version patch` / `minor` / `major`.
+2. **Build** the package: `npm run build:ci`
+3. **Log in** to npm (one-time per machine): `npm login` and enter your npm username, password, and OTP if you use 2FA.
+4. **Publish**: `npm publish --access public` (required for scoped packages like `@grant/mgit`).
+
+Then `npm i -g @grant/mgit` will install the new version.
+
+### Automated publish (Release Please + GitHub Actions)
+
+1. **Conventional commits** — Use `fix:`, `feat:`, or `feat!:` (breaking) in commit messages so Release Please can bump the version.
+2. **Release PR** — On push to `main`, Release Please opens or updates a release PR (version + CHANGELOG). Merge it to create the GitHub release.
+3. **npm** — When that release is published, the **Publish to npm** workflow runs. Use [Trusted Publishers](https://docs.npmjs.com/trusted-publishers) (no token, no expiry): on [npmjs.com](https://www.npmjs.com/) go to your package → **Settings** → **Trusted publishing** → add **GitHub Actions** → set **Workflow filename** to `npm-publish.yml` (must match `.github/workflows/npm-publish.yml`). No secrets needed; npm accepts the workflow via OIDC.
+
+After each merged release PR, the new version is on npm and installable with `npm i -g @grant/mgit`.
+
 ## Tech
 
 - CLI: [commander](https://github.com/tj/commander.js)

@@ -6,6 +6,7 @@
   "main": "./dist/index.js",
   "scripts": {
     "build": "tsc --project tsconfig.json && npm i -g --loglevel=error",
+    "build:ci": "tsc --project tsconfig.json",
     "dev": "tsc --project tsconfig.json --watch",
     "build-fresh": "npm cache clean --force && npm i && npm run build",
     "publish": "npm publish --access public",
@@ -24,6 +25,7 @@
   "license": "MIT",
   "bugs": { "url": "https://github.com/grant/mgit/issues" },
   "homepage": "https://github.com/grant/mgit#readme",
+  "files": ["dist"],
   "devDependencies": {
     "@types/cli-spinner": "^0.2.3",
     "@types/node": "^25.0.0",
