@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.3](https://github.com/grant/mgit/compare/v1.1.2...v1.1.3) (2026-02-26)
+
+
+### Bug Fixes
+
+* update npm publish with auth token ([59ddf63](https://github.com/grant/mgit/commit/59ddf630efb671ebd55e1cd0821bcc7b2140059c))
+
 ## [1.1.2](https://github.com/grant/mgit/compare/v1.1.1...v1.1.2) (2026-02-26)
 
 
