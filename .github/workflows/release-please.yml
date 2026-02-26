@@ -17,4 +17,4 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           release-type: node
-          manifest-path: release-please-config.json
+          config-file: release-please-config.json
