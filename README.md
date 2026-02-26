@@ -1,5 +1,7 @@
 # mgit
 
+[![CI](https://github.com/grant/mgit/actions/workflows/ci.yml/badge.svg)](https://github.com/grant/mgit/actions/workflows/ci.yml) [![npm](https://img.shields.io/npm/v/@grant/mgit.svg)](https://www.npmjs.com/package/@grant/mgit)
+
 Clone all repos for a GitHub user or organization.
 
 ```sh
